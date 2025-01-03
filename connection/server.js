@@ -15,6 +15,91 @@ app.use(bodyParser.urlencoded({ limit: '10000mb', extended: true }));
 
 
 
+const db = require('../connection/config/database');
+
+console.log(db, 'db')
+
+const transporter = nodemailer.createTransport({
+  host: 'mail.urbanitsolution.com',
+  port: 587,
+  secure: false,
+  auth: {
+    user: 'saklain@urbanitsolution.com',
+    pass: 'saklain',
+  },
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
+
+app.post('/send-otp/email', async (req, res) => {
+  try {
+    const { email, msg, otp } = req.body;
+    // const otp = generateRandomOTP();
+
+    const saveOtpQuery = 'UPDATE users SET email_verifiy_code = ? WHERE email = ?';
+    await db.query(saveOtpQuery, [otp, email]);
+
+
+    const mailOptions = {
+      from: `saklain@urbanitsolution.com`,
+      to: email,
+      subject: 'OTP Verification',
+      text: msg || `Your OTP is ${otp}`,
+    };
+
+    // Send the email
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error('Error:', error.message);
+        res.status(500).json({ error: 'Failed to send OTP via email' });
+      } else {
+        console.log('Email sent:', info.response);
+        res.status(200).json({ success: true });
+      }
+    });
+  } catch (error) {
+    console.error('Error:', error.message);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
+
+
+function generateRandomOTP() {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+
+const puppeteer = require('puppeteer');
+app.post('/convertToPDF', async (req, res) => {
+  const { url } = req.body;
+
+  try {
+    // Launch Puppeteer
+    const browser = await puppeteer.launch({
+      headless: true,
+    });
+
+    // Create a new page
+    const page = await browser.newPage();
+
+    // Navigate to the specified URL
+    await page.goto(url, { waitUntil: 'networkidle2' });
+
+    // Generate a PDF buffer
+    const pdfBuffer = await page.pdf();
+
+    // Close the browser
+    await browser.close();
+
+    // Set the content type and send the PDF buffer as the response
+    res.contentType('application/pdf');
+    res.send(pdfBuffer);
+  } catch (error) {
+    console.error('Error converting to PDF:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+});
 
 
 // http://192.168.0.107:5002/allUsers?email=abutaher01725@gmail.com
