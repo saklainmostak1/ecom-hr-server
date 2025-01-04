@@ -13,19 +13,9 @@ const nodemailer = require('nodemailer');
 app.use(bodyParser.json({ limit: '10000mb' }));
 app.use(bodyParser.urlencoded({ limit: '10000mb', extended: true }));
 
-
-
-
-
-
-
-
-
-
 const multer = require('multer')
 const path = require('path');
 const fs = require('fs');
-app.use(bodyParser.json());
 var mysql = require('mysql');
 
 
@@ -123,14 +113,16 @@ app.post('/convertToPDF', async (req, res) => {
 var connections = mysql.createConnection({
   // host: 'localhost',
   //  host: '192.168.0.110',
+  host: '162.0.239.48',
+  timezone: 'Z',
   port: '3306',
-  user: 'root',
-  password: '',
-  database: 'ecom'
+  user: "urbanit101_allowance",
+  database: "urbanit101_allowance",
+  password: "urb!n@!t!O!_@llO#!**w@nc=e"
 });
 console.log(connections)
 app.use(cors({
-  origin: 'http://localhost:3000', // Allow only your app's origin
+  origin: 'https://hrandecom.netlify.app', // Allow only your app's origin
   methods: 'GET,POST,PUT,DELETE', // Specify allowed methods
   credentials: true,              // If credentials (e.g., cookies) are needed
 }));
