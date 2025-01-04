@@ -121,53 +121,53 @@ app.post('/convertToPDF', async (req, res) => {
   }
 });
 
+//  start
 
+// app.post('/submit-form', (req, res) => {
+//   const cssContent = req.body.css;
 
-app.post('/submit-form', (req, res) => {
-  const cssContent = req.body.css;
+//   // Generate a folder structure based on the current date and time
+//   const cssFolderPath = path.join(__dirname, 'admin_template');
 
-  // Generate a folder structure based on the current date and time
-  const cssFolderPath = path.join(__dirname, 'admin_template');
+//   // Create the folder structure if it doesn't exist
+//   if (!fs.existsSync(cssFolderPath)) {
+//     fs.mkdirSync(cssFolderPath, { recursive: true });
+//   }
+//   const cssFilePath = path.join(cssFolderPath, `admin_template.css`);
+//           fs.writeFileSync(cssFilePath, cssContent);
 
-  // Create the folder structure if it doesn't exist
-  if (!fs.existsSync(cssFolderPath)) {
-    fs.mkdirSync(cssFolderPath, { recursive: true });
-  }
-  const cssFilePath = path.join(cssFolderPath, `admin_template.css`);
-          fs.writeFileSync(cssFilePath, cssContent);
+//   res.json({ message: 'CSS file generated successfully', cssFilePath});
+// });
 
-  res.json({ message: 'CSS file generated successfully', cssFilePath});
-});
+// app.get('/get-css-content/:file', (req, res) => {
+//   const cssFileName = req.params.file; // Use req.params.file to get the value of :file parameter
+//   const cssFilePath = path.join(__dirname, 'admin_template', cssFileName);
 
-app.get('/get-css-content/:file', (req, res) => {
-  const cssFileName = req.params.file; // Use req.params.file to get the value of :file parameter
-  const cssFilePath = path.join(__dirname, 'admin_template', cssFileName);
+//   try {
+//     // Read the content of the specified CSS file
+//     const generatedCssContent = fs.readFileSync(cssFilePath, 'utf-8');
 
-  try {
-    // Read the content of the specified CSS file
-    const generatedCssContent = fs.readFileSync(cssFilePath, 'utf-8');
-
-    res.json(generatedCssContent );
+//     res.json(generatedCssContent );
   
-  } catch (error) {
-    // Handle file read error
-    console.error('Error reading CSS file:', error.message);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
+//   } catch (error) {
+//     // Handle file read error
+//     console.error('Error reading CSS file:', error.message);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
-app.get('/get-css/:file', (req, res) => {
-  const cssFileName = req.params.file;
-  const cssFilePath = path.join(__dirname, 'admin_template', cssFileName);
+// app.get('/get-css/:file', (req, res) => {
+//   const cssFileName = req.params.file;
+//   const cssFilePath = path.join(__dirname, 'admin_template', cssFileName);
 
-  // Check if the CSS file exists
-  if (fs.existsSync(cssFilePath)) {
-      const cssContent = fs.readFileSync(cssFilePath, 'utf-8');
-      res.type('text/css').send(cssContent);
-  } else {
-      res.status(404).json({ error: 'CSS file not found' });
-  }
-});
+//   // Check if the CSS file exists
+//   if (fs.existsSync(cssFilePath)) {
+//       const cssContent = fs.readFileSync(cssFilePath, 'utf-8');
+//       res.type('text/css').send(cssContent);
+//   } else {
+//       res.status(404).json({ error: 'CSS file not found' });
+//   }
+// });
 
 
 
@@ -1079,6 +1079,8 @@ app.post("/editor", uploadAll.single("file"), (req, res) => {
 });
 
 app.use("/images/editor", express.static(path.join(__dirname, "editor")));
+
+// end
 
 // http://192.168.0.107:5002/allUsers?email=abutaher01725@gmail.com
 const usersModel = require('../model/Admin/usersListModel')
