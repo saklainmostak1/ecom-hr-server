@@ -26,6 +26,7 @@
     "nodemon": "^3.1.9",
     "puppeteer": "^23.11.1",
     "sha1": "^1.1.1",
+    "sharp": "^0.33.5",
     "vercel": "^39.2.4",
     "wkhtmltopdf": "^0.4.0"
   }
