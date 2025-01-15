@@ -1,5 +1,5 @@
 
-const connection = require('../../../connection/config/database')
+const connection = require('../../connection/config/database')
 // const path = require("path");
 const sha1 = require('sha1');
 const bcrypt = require('bcrypt');
