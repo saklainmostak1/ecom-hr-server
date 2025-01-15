@@ -1,5 +1,5 @@
 
-const connection = require('../../connection/config/database')
+const connection = require('../../../connection/config/database')
 // const path = require("path");
 const sha1 = require('sha1');
 const bcrypt = require('bcrypt');
@@ -18,7 +18,34 @@ const usersListModel = {
   users_list: async (req, res) => {
     try {
 
-      const data = "select * from users";
+      const data = "select * from users order by id desc";
+
+      connection.query(data, function (error, result) {
+        console.log(result, 'Saklain Mostak nayan')
+        if (!error) {
+          //   return  res.send(result,'nayan')
+
+          res.status(200).send(result)
+          // res.sendFile(path.join(__dirname + "../../App.js"));
+        }
+
+        else {
+          console.log(error, 'nayan')
+        }
+
+      })
+    }
+    catch (error) {
+      console.log(error)
+    }
+  },
+
+
+
+  font_family_list: async (req, res) => {
+    try {
+
+      const data = "select * from font_family";
 
       connection.query(data, function (error, result) {
         console.log(result, 'Saklain Mostak nayan')
@@ -75,14 +102,14 @@ const usersListModel = {
   // },
   users_create: async (req, res) => {
     try {
-      const { full_name, email, password, mobile, role_name, OTP, pass_reset } = req.body;
+      const { full_name, email, password, mobile, role_name, OTP, pass_reset, img } = req.body;
 
       // Hash the password using SHA-1
       const hashedPassword = sha1(password);
 
       // Insert the user into the database
-      const sql = 'INSERT INTO users (full_name, email, password, mobile, role_name, OTP, pass_reset) VALUES (?, ?, ?, ?, ?, ?, ?)';
-      const values = [full_name, email, hashedPassword, mobile, role_name, OTP, pass_reset];
+      const sql = 'INSERT INTO users (full_name, email, password, mobile, role_name, OTP, pass_reset, photo) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+      const values = [full_name, email, hashedPassword, mobile, role_name, OTP, pass_reset, img];
 
       connection.query(sql, values, (err, result) => {
         if (err) {
@@ -916,86 +943,87 @@ const usersListModel = {
     //   return res.status(500).json({ message: 'Internal Server Error' });
     // }
     const file = req.body;
-  console.log(file);
+    console.log(file);
 
-  const cssContent = req.body.css;
+    const cssContent = req.body.css;
 
-  const cssFolderPath = path.join(__dirname, '../../../../../files/admin_template');
+    const cssFolderPath = path.join(__dirname, '../../../../../files/admin_template');
 
-  if (!fs.existsSync(cssFolderPath)) {
-    fs.mkdirSync(cssFolderPath, { recursive: true });
-  }
-
-  try {
-    const {
-      created_by,
-      left_menu,
-      created_date,
-      modified_date,
-      modified_by,
-      login_template_name,
-      student_fee_invoice,
-      admin_panel_name,
-      status,
-      version_code,
-      css,
-      project_name_color,
-      bg_header,
-      color_header,
-      bg_sidebar,
-      bg_body,
-      bg_body_status,
-      color_body,
-      bg_body_content,
-      bg_body_content_status,
-      color_body_content,
-      bg_left_menu_three,
-      color_left_menu_three,
-      bg_left_menu_one,
-      color_left_menu_one,
-      bg_left_menu_two,
-      color_left_menu_two,
-      bg_card_header,
-      bg_card_header_status,
-      color_card_header,
-      border_left_menu_one,
-      border_left_menu_two,
-      border_left_menu_three,
-      side_menu_position,
-      bg_card_body,
-      options_color_sub_header,
-      color_sub_header,
-      bg_sub_header,
-      color_card_body,
-      sub_header_pg_text_color
-    } = req.body;
-
-    if (!admin_panel_name) {
-      return res.status(400).json({ message: 'admin panel name and status ID are required' });
+    if (!fs.existsSync(cssFolderPath)) {
+      fs.mkdirSync(cssFolderPath, { recursive: true });
     }
 
-    // Check if any record has status 1
-    const checkStatusQuery = 'SELECT COUNT(*) AS count FROM admin_template WHERE status = 1';
+    try {
+      const {
+        created_by,
+        left_menu,
+        created_date,
+        modified_date,
+        modified_by,
+        login_template_name,
+        student_fee_invoice,
+        admin_panel_name,
+        status,
+        version_code,
+        css,
+        project_name_color,
+        bg_header,
+        color_header,
+        bg_sidebar,
+        bg_body,
+        bg_body_status,
+        color_body,
+        bg_body_content,
+        bg_body_content_status,
+        color_body_content,
+        bg_left_menu_three,
+        color_left_menu_three,
+        bg_left_menu_one,
+        color_left_menu_one,
+        bg_left_menu_two,
+        color_left_menu_two,
+        bg_card_header,
+        bg_card_header_status,
+        color_card_header,
+        border_left_menu_one,
+        border_left_menu_two,
+        border_left_menu_three,
+        side_menu_position,
+        bg_card_body,
+        options_color_sub_header,
+        color_sub_header,
+        bg_sub_header,
+        color_card_body,
+        sub_header_pg_text_color,
+        header_text_font
+      } = req.body;
 
-    connection.query(checkStatusQuery, (checkError, results) => {
-      if (checkError) {
-        console.error(checkError);
-        return res.status(500).json({ message: 'Internal Server Error' });
+      if (!admin_panel_name) {
+        return res.status(400).json({ message: 'admin panel name and status ID are required' });
       }
 
-      const count = results[0].count;
+      // Check if any record has status 1
+      const checkStatusQuery = 'SELECT COUNT(*) AS count FROM admin_template WHERE status = 1';
 
-      const startTransaction = () => {
-        connection.beginTransaction((transactionError) => {
-          if (transactionError) {
-            console.error(transactionError);
-            return res.status(500).json({ message: 'Internal Server Error' });
-          }
+      connection.query(checkStatusQuery, (checkError, results) => {
+        if (checkError) {
+          console.error(checkError);
+          return res.status(500).json({ message: 'Internal Server Error' });
+        }
 
-          const updateStatusQuery = 'UPDATE admin_template SET status = 2 WHERE status = 1';
+        const count = results[0].count;
 
-          const proceedWithInsertion = () => {
-            const insertQuery = `
+        const startTransaction = () => {
+          connection.beginTransaction((transactionError) => {
+            if (transactionError) {
+              console.error(transactionError);
+              return res.status(500).json({ message: 'Internal Server Error' });
+            }
+
+            const updateStatusQuery = 'UPDATE admin_template SET status = 2 WHERE status = 1';
+
+            const proceedWithInsertion = () => {
+              const insertQuery = `
               INSERT INTO admin_template (
                 created_by,
                 left_menu,
@@ -1036,118 +1064,120 @@ const usersListModel = {
                 color_sub_header,
                 bg_sub_header,
                 color_card_body,
-                sub_header_pg_text_color
-              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                sub_header_pg_text_color,
+                header_text_font
+              ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             `;
 
-            connection.query(
-              insertQuery,
-              [
-                created_by,
-                left_menu,
-                created_date,
-                modified_date,
-                modified_by,
-                login_template_name,
-                student_fee_invoice,
-                admin_panel_name,
-                status,
-                version_code,
-                css,
-                project_name_color,
-                bg_header,
-                color_header,
-                bg_sidebar,
-                bg_body,
-                bg_body_status,
-                color_body,
-                bg_body_content,
-                bg_body_content_status,
-                color_body_content,
-                bg_left_menu_three,
-                color_left_menu_three,
-                bg_left_menu_one,
-                color_left_menu_one,
-                bg_left_menu_two,
-                color_left_menu_two,
-                bg_card_header,
-                bg_card_header_status,
-                color_card_header,
-                border_left_menu_one,
-                border_left_menu_two,
-                border_left_menu_three,
-                side_menu_position,
-                bg_card_body,
-                options_color_sub_header,
-                color_sub_header,
-                bg_sub_header,
-                color_card_body,
-                sub_header_pg_text_color
-              ],
-              (insertError, results) => {
-                if (insertError) {
-                  console.error(insertError);
-                  return connection.rollback(() => {
-                    res.status(500).json({ message: 'Internal Server Error' });
-                  });
-                }
+              connection.query(
+                insertQuery,
+                [
+                  created_by,
+                  left_menu,
+                  created_date,
+                  modified_date,
+                  modified_by,
+                  login_template_name,
+                  student_fee_invoice,
+                  admin_panel_name,
+                  status,
+                  version_code,
+                  css,
+                  project_name_color,
+                  bg_header,
+                  color_header,
+                  bg_sidebar,
+                  bg_body,
+                  bg_body_status,
+                  color_body,
+                  bg_body_content,
+                  bg_body_content_status,
+                  color_body_content,
+                  bg_left_menu_three,
+                  color_left_menu_three,
+                  bg_left_menu_one,
+                  color_left_menu_one,
+                  bg_left_menu_two,
+                  color_left_menu_two,
+                  bg_card_header,
+                  bg_card_header_status,
+                  color_card_header,
+                  border_left_menu_one,
+                  border_left_menu_two,
+                  border_left_menu_three,
+                  side_menu_position,
+                  bg_card_body,
+                  options_color_sub_header,
+                  color_sub_header,
+                  bg_sub_header,
+                  color_card_body,
+                  sub_header_pg_text_color,
+                  header_text_font
+                ],
+                (insertError, results) => {
+                  if (insertError) {
+                    console.error(insertError);
+                    return connection.rollback(() => {
+                      res.status(500).json({ message: 'Internal Server Error' });
+                    });
+                  }
 
-                const insertedId = results.insertId;
-                const cssFilePath = path.join(cssFolderPath, `admin_template_${insertedId}.css`);
-                const paths = `admin_template_${insertedId}.css`;
-                fs.writeFileSync(cssFilePath, cssContent);
+                  const insertedId = results.insertId;
+                  const cssFilePath = path.join(cssFolderPath, `admin_template_${insertedId}.css`);
+                  const paths = `admin_template_${insertedId}.css`;
+                  fs.writeFileSync(cssFilePath, cssContent);
 
-                connection.query(
-                  `UPDATE admin_template SET css = ? WHERE id = ?`,
-                  [paths, insertedId],
-                  (updateError) => {
-                    if (updateError) {
-                      console.error(updateError);
-                      return connection.rollback(() => {
-                        res.status(500).json({ message: 'Internal Server Error' });
-                      });
-                    }
-
-                    connection.commit((commitError) => {
-                      if (commitError) {
-                        console.error(commitError);
+                  connection.query(
+                    `UPDATE admin_template SET css = ? WHERE id = ?`,
+                    [paths, insertedId],
+                    (updateError) => {
+                      if (updateError) {
+                        console.error(updateError);
                         return connection.rollback(() => {
                           res.status(500).json({ message: 'Internal Server Error' });
                         });
                       }
 
-                      console.log('Data inserted successfully');
-                      res.status(200).json({ message: 'Data inserted successfully', cssPath: cssFilePath, insertedId });
-                    });
-                  }
-                );
-              }
-            );
-          };
+                      connection.commit((commitError) => {
+                        if (commitError) {
+                          console.error(commitError);
+                          return connection.rollback(() => {
+                            res.status(500).json({ message: 'Internal Server Error' });
+                          });
+                        }
 
-          if (count > 0) {
-            connection.query(updateStatusQuery, (updateError) => {
-              if (updateError) {
-                console.error(updateError);
-                return connection.rollback(() => {
-                  res.status(500).json({ message: 'Internal Server Error' });
-                });
-              }
+                        console.log('Data inserted successfully');
+                        res.status(200).json({ message: 'Data inserted successfully', cssPath: cssFilePath, insertedId });
+                      });
+                    }
+                  );
+                }
+              );
+            };
 
+            if (count > 0) {
+              connection.query(updateStatusQuery, (updateError) => {
+                if (updateError) {
+                  console.error(updateError);
+                  return connection.rollback(() => {
+                    res.status(500).json({ message: 'Internal Server Error' });
+                  });
+                }
+
+                proceedWithInsertion();
+              });
+            } else {
               proceedWithInsertion();
-            });
-          } else {
-            proceedWithInsertion();
-          }
-        });
-      };
+            }
+          });
+        };
 
-      startTransaction();
-    });
-  } catch (error) {
-    console.error(error);
-    return res.status(500).json({ message: 'Internal Server Error' });
-  }
+        startTransaction();
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ message: 'Internal Server Error' });
+    }
   },
 
 
@@ -1552,17 +1582,17 @@ const usersListModel = {
 
     // const file = req.body;
     // console.log(file);
-  
+
     // const cssContent = req.body.css;
-  
+
     // // Generate a folder structure based on the current date and time
     // const cssFolderPath = path.join(__dirname, '../../../../../files/admin_template');
-  
+
     // // Create the folder structure if it doesn't exist
     // if (!fs.existsSync(cssFolderPath)) {
     //   fs.mkdirSync(cssFolderPath, { recursive: true });
     // }
-  
+
     // try {
     //   // Destructure the request body
     //   const {
@@ -1606,28 +1636,28 @@ const usersListModel = {
     //     color_card_body,
     //     sub_header_pg_text_color
     //   } = req.body;
-  
+
     //   // Check if the ID of the record to be updated is available in the request
     //   const recordId = req.params.id;
-  
+
     //   if (!recordId) {
     //     return res.status(400).json({ message: 'Record ID is required for update' });
     //   }
-  
+
     //   // Query to check if any record has status 1
     //   const checkStatusQuery = `
     //     SELECT COUNT(*) AS count FROM admin_template WHERE status = 1
     //   `;
-  
+
     //   connection.query(checkStatusQuery, (error, results) => {
     //     if (error) {
     //       console.error(error);
     //       return res.status(500).json({ message: 'Internal Server Error' });
     //     }
-  
+
     //     const { count } = results[0];
     //     const newStatus = count > 0 ? 2 : 1;
-  
+
     //     // Query to update the specific record
     //     const updateQuery = `
     //       UPDATE admin_template
@@ -1674,7 +1704,7 @@ const usersListModel = {
     //         sub_header_pg_text_color = ?
     //       WHERE id = ?
     //     `;
-  
+
     //     connection.query(
     //       updateQuery,
     //       [
@@ -1725,11 +1755,11 @@ const usersListModel = {
     //           console.error(error);
     //           return res.status(500).json({ message: 'Internal Server Error' });
     //         }
-  
+
     //         const cssFilePath = path.join(cssFolderPath, `admin_template_${recordId}.css`);
     //         fs.writeFileSync(cssFilePath, cssContent);
     //         const paths = (`admin_template_${recordId}.css`);
-  
+
     //         connection.query(
     //           `UPDATE admin_template SET admin_template = ? WHERE id = ?`,
     //           [paths, recordId],
@@ -1738,7 +1768,7 @@ const usersListModel = {
     //               console.error(updateError);
     //               return res.status(500).json({ message: 'Internal Server Error' });
     //             }
-  
+
     //             console.log('Data updated successfully');
     //             res.status(200).json({ message: 'Data updated successfully', cssPath: cssFilePath, updatedId: recordId });
     //           }
@@ -1809,7 +1839,8 @@ const usersListModel = {
         color_sub_header,
         bg_sub_header,
         color_card_body,
-        sub_header_pg_text_color
+        sub_header_pg_text_color,
+        header_text_font
       } = req.body;
 
       // Check if the ID of the record to be updated is available in the request
@@ -1874,7 +1905,8 @@ const usersListModel = {
             color_sub_header = ?,
             bg_sub_header = ?,
             color_card_body = ?,
-            sub_header_pg_text_color = ?
+            sub_header_pg_text_color = ?,
+            header_text_font = ?
           WHERE id = ?
         `;
 
@@ -1921,6 +1953,7 @@ const usersListModel = {
             bg_sub_header,
             color_card_body,
             sub_header_pg_text_color,
+            header_text_font,
             recordId
           ],
           (error, results) => {
@@ -2391,9 +2424,9 @@ const usersListModel = {
 
   users_edit: async (req, res) => {
     try {
-      const { full_name, email, mobile, role_name } = req.body;
-      const query = 'UPDATE users SET full_name = ?, email = ?, mobile = ?, role_name = ? WHERE id = ? ';
-      connection.query(query, [full_name, email, mobile, role_name, req.params.id], (error, result) => {
+      const { full_name, email, mobile, role_name, img } = req.body;
+      const query = 'UPDATE users SET full_name = ?, email = ?, mobile = ?, photo = ?, role_name = ? WHERE id = ? ';
+      connection.query(query, [full_name, email, mobile, img, role_name, req.params.id], (error, result) => {
         if (!error && result.affectedRows > 0) {
           console.log(result);
           return res.send(result);
@@ -2713,7 +2746,207 @@ const usersListModel = {
     });
   },
 
+  users_role_access_create: async (req, res) => {
+    const { role_name, status, user_page_list_id, user_default_page, OTP, pass_reset, otp_expire } = req.body;
 
+    // Validate required fields
+    if (!role_name || !user_page_list_id) {
+      res.status(400).json({ message: 'role_name and user_page_list_id are required and should not be null' });
+      return;
+    }
+
+    // Convert user_page_list_id to an array of integers and validate
+    const pageListIds = user_page_list_id
+      .split(',')
+      .map(id => parseInt(id.trim()))
+      .filter(id => !isNaN(id)); // Filter out invalid values
+
+    if (pageListIds.length === 0) {
+      res.status(400).json({ message: 'user_page_list_id must contain valid numeric IDs' });
+      return;
+    }
+
+    // Start a database transaction
+    connection.beginTransaction((err) => {
+      if (err) {
+        console.error('Error starting database transaction: ' + err);
+        res.status(500).json({ message: 'Internal server error' });
+        return;
+      }
+
+      // Insert data into the 'user_role' table
+      connection.query(
+        'INSERT INTO user_role (role_name, status, OTP, pass_reset, otp_expire) VALUES (?, ?, ?, ?, ?)',
+        [role_name, status, OTP, pass_reset, otp_expire],
+        (err, result) => {
+          if (err) {
+            connection.rollback(() => {
+              console.error('Error inserting into user_role table: ' + err);
+              res.status(500).json({ message: 'Internal server error' });
+            });
+            return;
+          }
+
+          const userRoleId = result.insertId;
+
+          // Insert data into the 'user_role_permission' table
+          connection.query(
+            'INSERT INTO user_role_permission (user_page_list_id, user_default_page, user_role_id) VALUES (?, ?, ?)',
+            [user_page_list_id, user_default_page, userRoleId],
+            (err, permissionResult) => {
+              if (err) {
+                connection.rollback(() => {
+                  console.error('Error inserting into user_role_permission table: ' + err);
+                  res.status(500).json({ message: 'Internal server error' });
+                });
+                return;
+              }
+
+              // Update the 'module_info' table based on user_page_list_id
+              const updateQuery = `
+                UPDATE module_info
+                SET user_role_access = CASE 
+                  WHEN id IN (?) THEN 1
+                  ELSE 0
+                END
+              `;
+
+              connection.query(updateQuery, [pageListIds], (err, updateResult) => {
+                if (err) {
+                  connection.rollback(() => {
+                    console.error('Error updating module_info table: ' + err);
+                    res.status(500).json({ message: 'Internal server error' });
+                  });
+                  return;
+                }
+
+                // Commit the transaction when all queries are successful
+                connection.commit((err) => {
+                  if (err) {
+                    console.error('Error committing the transaction: ' + err);
+                    res.status(500).json({ message: 'Internal server error' });
+                    return;
+                  }
+
+                  res.status(201).json({
+                    user_role_id: userRoleId,
+                    role_name,
+                    status,
+                    user_page_list_id,
+                    user_default_page,
+                    OTP,
+                    pass_reset,
+                    otp_expire,
+                    updated_module_count: updateResult.affectedRows,
+                  });
+                });
+              });
+            }
+          );
+        }
+      );
+    });
+  },
+
+  users_role_access_update: async (req, res) => {
+    const { role_name, status, user_page_list_id, user_default_page, OTP, pass_reset, otp_expire } = req.body;
+    const user_role_id = req.params.id
+    // Validate required fields
+    if (!role_name || !user_page_list_id) {
+      res.status(400).json({ message: 'role_name, user_page_list_id, and user_role_id are required and should not be null' });
+      return;
+    }
+
+    // Convert user_page_list_id to an array of integers and validate
+    const pageListIds = user_page_list_id
+      .split(',')
+      .map(id => parseInt(id.trim()))
+      .filter(id => !isNaN(id)); // Filter out invalid values
+
+    if (pageListIds.length === 0) {
+      res.status(400).json({ message: 'user_page_list_id must contain valid numeric IDs' });
+      return;
+    }
+
+    // Start a database transaction
+    connection.beginTransaction((err) => {
+      if (err) {
+        console.error('Error starting database transaction: ' + err);
+        res.status(500).json({ message: 'Internal server error' });
+        return;
+      }
+
+      // Update data in the 'user_role' table
+      connection.query(
+        'UPDATE user_role SET role_name = ?, status = ?, OTP = ?, pass_reset = ?, otp_expire = ? WHERE id = ?',
+        [role_name, status, OTP, pass_reset, otp_expire, user_role_id],
+        (err, result) => {
+          if (err) {
+            connection.rollback(() => {
+              console.error('Error updating user_role table: ' + err);
+              res.status(500).json({ message: 'Internal server error' });
+            });
+            return;
+          }
+
+          // Update data in the 'user_role_permission' table
+          connection.query(
+            'UPDATE user_role_permission SET user_page_list_id = ?, user_default_page = ? WHERE user_role_id = ?',
+            [user_page_list_id, user_default_page, user_role_id],
+            (err, permissionResult) => {
+              if (err) {
+                connection.rollback(() => {
+                  console.error('Error updating user_role_permission table: ' + err);
+                  res.status(500).json({ message: 'Internal server error' });
+                });
+                return;
+              }
+
+              // Update the 'module_info' table based on user_page_list_id
+              const updateQuery = `
+                UPDATE module_info
+                SET user_role_access = CASE 
+                  WHEN id IN (?) THEN 1
+                  ELSE 0
+                END
+              `;
+              console.log(pageListIds, 'pageListIds')
+              connection.query(updateQuery, [pageListIds], (err, updateResult) => {
+                if (err) {
+                  connection.rollback(() => {
+                    console.error('Error updating module_info table: ' + err);
+                    res.status(500).json({ message: 'Internal server error' });
+                  });
+                  return;
+                }
+
+                // Commit the transaction when all queries are successful
+                connection.commit((err) => {
+                  if (err) {
+                    console.error('Error committing the transaction: ' + err);
+                    res.status(500).json({ message: 'Internal server error' });
+                    return;
+                  }
+
+                  res.status(200).json({
+                    user_role_id,
+                    role_name,
+                    status,
+                    user_page_list_id,
+                    user_default_page,
+                    OTP,
+                    pass_reset,
+                    otp_expire,
+                    updated_module_count: updateResult.affectedRows,
+                  });
+                });
+              });
+            }
+          );
+        }
+      );
+    });
+  },
 
   users_role_create: async (req, res) => {
     const { role_name, status, user_page_list_id, user_default_page, OTP, pass_reset, otp_expire } = req.body;
@@ -2791,14 +3024,15 @@ const usersListModel = {
     });
   },
 
+
   users_role_update: async (req, res) => {
     const { user_role_id, role_name, status, user_page_list_id, user_default_page, OTP, pass_reset, otp_expire } = req.body;
-  
+
     // Check if required fields are provided
     if (!user_role_id || !role_name || !user_page_list_id) {
       return res.status(400).json({ message: 'user_role_id, role_name, status, user_page_list_id, and user_default_page are required and should not be null' });
     }
-  
+
     try {
       // Start a database transaction
       await new Promise((resolve, reject) => {
@@ -2807,7 +3041,7 @@ const usersListModel = {
           resolve();
         });
       });
-  
+
       // Update data in the 'user_role' table
       await new Promise((resolve, reject) => {
         connection.query(
@@ -2819,7 +3053,7 @@ const usersListModel = {
           }
         );
       });
-  
+
       // Update data in the 'user_role_permission' table
       await new Promise((resolve, reject) => {
         connection.query(
@@ -2831,7 +3065,10 @@ const usersListModel = {
           }
         );
       });
-  
+
+
+
+
       // Commit the transaction
       await new Promise((resolve, reject) => {
         connection.commit(err => {
@@ -2839,7 +3076,7 @@ const usersListModel = {
           resolve();
         });
       });
-  
+
       res.status(200).json({
         user_role_id,
         role_name,

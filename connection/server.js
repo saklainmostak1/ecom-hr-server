@@ -123,6 +123,7 @@ app.put('/admin/update_side_menu/:id', usersModel.side_menu_update);
 app.put('/admin/reset_password/:id', usersModel.password_reset);
 app.put('/updateLogin/:email', usersModel.updateLogin);
 
+app.post('/Admin/user/users_role_access_create', usersModel.users_role_access_create);
 
 
 app.get('/menu_item/all', usersModel.menu_Item_list)
@@ -143,6 +144,7 @@ app.put('/user/user-role/edit/:id', usersModel.users_role_update);
 app.delete('/user/user-role/delete/:id', usersModel.users_role_delete);
 app.get('/user/role', usersModel.users_role_permission_list);
 app.get('/user-role/btn', usersModel.usersRoleBtn);
+app.post('/admin/users_role/users_role_access_update/:id', usersModel.users_role_access_update)
 
 
 const adminPageList = require('../model/Admin/module_info/adminPageListModel')
@@ -174,7 +176,7 @@ app.get('/admin/module_info/module_info_tutorial_all', ModuleInfo.module_info_tu
 app.post('/admin/module_info/module_info_tutorial_update', ModuleInfo.module_info_tutorial_update)
 // app.get('/admin/module_info/module_info_tutorial_single/:id', ModuleInfo.module_info_tutorial_single)
 app.get('/admin/module_info/module_info_tutorial_all_paigination/:pageNo/:perPage', ModuleInfo.module_info_tutorial_all_paigination)
-
+app.get('/Admin/user_role_access/module_info_all_access', adminPageList.getPageGroupAndDisplayNameWithId )
 
 // no need
 app.get('/page-group/display-name/with-id', adminPageList.getPageGroupAndDisplayNameWithId)
