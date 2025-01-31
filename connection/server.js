@@ -31,7 +31,91 @@ const transporter = nodemailer.createTransport({
     rejectUnauthorized: false,
   },
 });
+app.post('/send-email/invoice', async (req, res) => {
+  try {
+    const { email, subject, msg, msg2, msg3, msg4 } = req.body;
 
+    // Define the PDF paths for each document
+    const pdfPath1 = `invoice_${Date.now()}.pdf`;
+    const pdfPath2 = `chalan_${Date.now()}.pdf`;
+    const pdfPath3 = `quotation_${Date.now()}.pdf`;
+    const pdfPath4 = `memo_${Date.now()}.pdf`;
+
+    // Generate the first PDF (invoice)
+    wkhtmltopdf(msg, { output: pdfPath1 }, async (err) => {
+      if (err) {
+        console.error("Error generating PDF:", err);
+        return res.status(500).json({ error: "Failed to generate PDF" });
+      }
+
+      console.log("Invoice PDF Generated:", pdfPath1);
+
+      // Generate the second PDF (chalan)
+      wkhtmltopdf(msg2, { output: pdfPath2 }, async (err) => {
+        if (err) {
+          console.error("Error generating PDF:", err);
+          return res.status(500).json({ error: "Failed to generate PDF" });
+        }
+
+        console.log("Chalan PDF Generated:", pdfPath2);
+
+        // Generate the third PDF (quotation)
+        wkhtmltopdf(msg3, { output: pdfPath3 }, async (err) => {
+          if (err) {
+            console.error("Error generating PDF:", err);
+            return res.status(500).json({ error: "Failed to generate PDF" });
+          }
+
+          console.log("Quotation PDF Generated:", pdfPath3);
+
+          // Generate the fourth PDF (memo)
+          wkhtmltopdf(msg4, { output: pdfPath4 }, async (err) => {
+            if (err) {
+              console.error("Error generating PDF:", err);
+              return res.status(500).json({ error: "Failed to generate PDF" });
+            }
+
+            console.log("Memo PDF Generated:", pdfPath4);
+
+            // Define the mail options with all four PDFs as attachments
+            const mailOptions = {
+              from: "saklain@urbanitsolution.com",
+              to: email,
+              subject: subject,
+              html: msg, // You can use any of the message content here depending on which one you want in the email body
+              attachments: [
+                { filename: "invoice.pdf", path: pdfPath1 },
+                { filename: "chalan.pdf", path: pdfPath2 },
+                { filename: "quotation.pdf", path: pdfPath3 },
+                { filename: "memo.pdf", path: pdfPath4 },
+              ],
+            };
+
+            // Send the email
+            transporter.sendMail(mailOptions, (error, info) => {
+              if (error) {
+                console.error("Error sending email:", error.message);
+                return res.status(500).json({ error: "Failed to send email" });
+              }
+              console.log("Email sent:", info.response);
+
+              // Delete the generated PDFs after sending the email
+              fs.unlinkSync(pdfPath1);
+              fs.unlinkSync(pdfPath2);
+              fs.unlinkSync(pdfPath3);
+              fs.unlinkSync(pdfPath4);
+
+              res.status(200).json({ success: true, message: "Email sent successfully!" });
+            });
+          });
+        });
+      });
+    });
+  } catch (error) {
+    console.error("Internal Server Error:", error.message);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 app.post('/send-otp/email', async (req, res) => {
   try {
     const { email, msg, otp } = req.body;
@@ -184,6 +268,40 @@ app.get('/admin/allAdmin/', ModuleInfo.getAllAdminPageList)
 app.get('/admin/module_info/module_info_all/:id', ModuleInfo.getAllAdminPageLists)
 app.get('/admin/group-names-id', ModuleInfo.getPageGroupAndControllerNamesId)
 app.get('/admin/users_role/users_role_permission/:id', ModuleInfo.users_role_permission_default_page)
+
+
+const QuotationModel = require('../model/Admin/quotation_model/quotation_model')
+app.post("/Admin/quotation/quotation_create", QuotationModel.quotation_create
+);
+app.get("/Admin/quotation/quotation_product_list", QuotationModel.quotation_product_list
+);
+app.get("/Admin/quotation/quotation_list", QuotationModel.quotation_list
+);
+app.get("/Admin/quotation/quotation_single/:id", QuotationModel.quotation_single
+);
+app.get("/Admin/quotation/quotation_list_paigination/:pageNo/:perPage", QuotationModel.quotation_list_paigination
+);
+app.post("/Admin/quotation/quotation_list_search", QuotationModel.quotation_list_search
+);
+app.post("/Admin/quotation/quotation_edit/:id", QuotationModel.quotation_edit
+);
+app.post("/Admin/quotation/quotation_product_delete/:id", QuotationModel.quotation_product_delete
+);
+app.post("/Admin/quotation/quotation_delete/:id", QuotationModel.quotation_delete
+);
+app.post("/Admin/quotation/quotation_list_print_single", QuotationModel.quotation_list_print_single
+);
+app.post("/Admin/quotation/quotation_list_pdf_single", QuotationModel.quotation_list_pdf_single
+);
+app.post("/Admin/quotation/quotation_list_pdf", QuotationModel.quotation_list_pdf
+);
+app.post("/Admin/quotation/quotation_list_print", QuotationModel.quotation_list_print
+);
+app.post("/Admin/quotation/quotation_list_print_all", QuotationModel.quotation_list_print_all
+);
+app.get("/Admin/quotation/quotation_current_date_count", QuotationModel.quotation_current_date_count
+);
+
 
 
 
@@ -376,6 +494,10 @@ app.post('/Admin/employee/employee_delete/:id', EmployeeModel.employee_delete)
 app.post('/Admin/employee/employee_edit/:id', EmployeeModel.employee_update)
 app.get('/Admin/employee/employee_list', EmployeeModel.employee_all)
 app.get('/Admin/employee/employee_list/:id', EmployeeModel.employee_all_single)
+
+app.get('/Admin/employee/employee_all_single_for_id/:id', EmployeeModel.employee_all_single_for_id)
+app.post('/Admin/employee/employee_search_id_card', EmployeeModel.employee_search_id_card)
+
 app.get('/Admin/employee/employee_list_for_attendance', EmployeeModel.employee_all_for_attendance)
 app.post('/Admin/employee_user/employee_user_update/:id', EmployeeModel.user_update)
 app.get('/Admin/designation/designation_list', EmployeeModel.designation_list)
@@ -396,6 +518,12 @@ app.post('/Admin/employee/employee_search', EmployeeModel.employee_search)
 app.get('/Admin/employee/employee_list_paigination/:pageNo/:perPage', EmployeeModel.employee_list_paigination)
 app.post('/Admin/employee/employee_list_pdf', EmployeeModel.employee_pdf)
 app.post('/Admin/employee/employee_list_print', EmployeeModel.employee_list_print)
+app.get('/Admin/employee/employee_id_card_setting_list', EmployeeModel.employee_id_card_setting_list)
+app.get('/Admin/employee/employee_id_card_setting_back_list', EmployeeModel.employee_id_card_setting_back_list)
+app.post('/Admin/employee/employee_id_card_all_create', EmployeeModel.employee_id_card_all_create)
+app.post('/Admin/employee/employee_id_card_setting_delete/:id', EmployeeModel.employee_id_card_setting_delete)
+app.post('/Admin/employee/employee_id_card_list_print', EmployeeModel.employee__id_card_list_print)
+app.post('/Admin/employee/employee_id_card_list_pdf', EmployeeModel.employee_id_card_list_pdf)
 
 
 
