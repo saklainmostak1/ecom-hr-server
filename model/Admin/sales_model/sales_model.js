@@ -1107,6 +1107,7 @@ const SalesModel = {
             let { barcode } = req.body;
 
             // Construct the base SQL query
+            
             let sql = `
                 SELECT 
                  purchase_product.*, 
